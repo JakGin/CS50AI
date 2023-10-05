@@ -134,7 +134,7 @@ def minimax(board):
     if p == "X":
         highest_value = float('-inf')
         for action in actions(board):
-            value = min_value(result(board, action))
+            value = min_value(result(board, action), float('-inf'), float('inf'))
             if value == 1:
                 return action
             if value > highest_value:
@@ -143,7 +143,7 @@ def minimax(board):
     elif p == "O":
         lowest_value = float('inf')
         for action in actions(board):
-            value = max_value(result(board, action))
+            value = max_value(result(board, action), float('-inf'), float('inf'))
             if value == -1:
                 return action
             if value < lowest_value:
@@ -153,25 +153,31 @@ def minimax(board):
     return best_action
 
 
-def max_value(state):
+def max_value(state, alpha, beta):
     v = float("-inf")
 
     if terminal(state):
         return utility(state)
     
     for action in actions(state):
-        v = max(v, min_value(result(state, action)))
+        v = max(v, min_value(result(state, action), alpha, beta))
+        if v >= beta:
+            return v
+        alpha = max(alpha, v)
 
     return v
 
 
-def min_value(state):
+def min_value(state, alpha, beta):
     v = float("inf")
 
     if terminal(state):
         return utility(state)
     
     for action in actions(state):
-        v = min(v, max_value(result(state, action)))
+        v = min(v, max_value(result(state, action), alpha, beta))
+        if v <= alpha:
+            return v
+        beta = min(beta, v)
 
     return v
