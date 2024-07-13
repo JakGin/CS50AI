@@ -59,7 +59,35 @@ def load_data(filename):
     labels should be the corresponding list of labels, where each label
     is 1 if Revenue is true, and 0 otherwise.
     """
-    raise NotImplementedError
+    evidence = []
+    labels = []
+    with open(filename) as file:
+        reader = csv.reader(file)
+        next(reader)
+        for row in reader:
+            evidence.append(
+                [
+                    int(row[0]),
+                    float(row[1]),
+                    int(row[2]),
+                    float(row[3]),
+                    int(row[4]),
+                    float(row[5]),
+                    float(row[6]),
+                    float(row[7]),
+                    float(row[8]),
+                    float(row[9]),
+                    month_to_int(row[10]),
+                    int(row[11]),
+                    int(row[12]),
+                    int(row[13]),
+                    int(row[14]),
+                    1 if row[15] == "Returning_Visitor" else 0,
+                    0 if row[16] == "False" else 1,
+                ]
+            )
+            labels.append(0) if row[17] == "FALSE" else labels.append(1)
+    return evidence, labels
 
 
 def train_model(evidence, labels):
@@ -67,7 +95,9 @@ def train_model(evidence, labels):
     Given a list of evidence lists and a list of labels, return a
     fitted k-nearest neighbor model (k=1) trained on the data.
     """
-    raise NotImplementedError
+    model = KNeighborsClassifier(1)
+    model.fit(evidence, labels)
+    return model
 
 
 def evaluate(labels, predictions):
@@ -85,7 +115,41 @@ def evaluate(labels, predictions):
     representing the "true negative rate": the proportion of
     actual negative labels that were accurately identified.
     """
-    raise NotImplementedError
+    positive_labels = len([label for label in labels if label == 1])
+    negative_labels = len(labels) - positive_labels
+    identified_positive = 0
+    identified_negative = 0
+    for label, prediction in zip(labels, predictions):
+        if label == prediction:
+            if label == 1:
+                identified_positive += 1
+            else:
+                identified_negative += 1
+    sensitivity = identified_positive / positive_labels
+    specificity = identified_negative / negative_labels
+    return sensitivity, specificity
+
+
+def month_to_int(month):
+    """
+    Given month like "Jan" or "Feb" returns the corresponding
+    integer of that month
+    """
+    months = [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "June",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+    ]
+    return months.index(month)
 
 
 if __name__ == "__main__":
